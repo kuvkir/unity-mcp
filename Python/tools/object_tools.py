@@ -4,6 +4,11 @@ from typing import Optional, List, Dict, Any
 from mcp.server.fastmcp import FastMCP, Context
 from unity_connection import get_unity_connection
 
+import logging
+
+# Get the logger that's configured in server.py
+logger = logging.getLogger("UnityMCP")
+
 def register_object_tools(mcp: FastMCP):
     """Register all object inspection and manipulation tools with the MCP server."""
     
@@ -247,4 +252,54 @@ def register_object_tools(mcp: FastMCP):
             })
             return response
         except Exception as e:
-            return {"error": f"Failed to execute context menu item: {str(e)}"} 
+            return {"error": f"Failed to execute context menu item: {str(e)}"}
+            
+    @mcp.tool()
+    def game_api_call(
+        ctx: Context,
+        command: str,
+        **parameters
+    ) -> Dict[str, Any]:
+        """Send a custom command to the Unity game.
+        
+        This tool sends commands with arguments to Unity for operations not covered by other tools.
+        
+        Args:
+            ctx: The MCP context
+            command: The command to run in Unity
+            **parameters: Additional named parameters required by the specific game command.
+            
+        Returns:
+            Dict[str, Any]: Results from the command execution. 
+                The exact structure of the returned data depends on the specific command implemented in Unity.
+                If the call fails, returns a dictionary with an "error" key.
+
+        Examples:
+            # Player action
+            game_api_call(ctx, "player_action", player_id=123, action="jump")
+            
+            # Change game state
+            game_api_call(ctx, "game_state", state="paused")
+            
+            # Spawn enemies
+            game_api_call(ctx, "spawn_enemy", type="zombie", position=[10, 0, 20])
+        """
+        try:
+            unity = get_unity_connection()
+
+            # HOW TO I LOG HERE ?
+
+            # for some reason Claude wraps the parameters in a "parameters" key
+            if parameters["parameters"] is not None:
+                parameters = parameters["parameters"]
+
+            logger.info(f"*** Executing game API call '{command}' with parameters: {parameters}")
+
+            # Send as a regular command
+            response = unity.send_command("GAME_API_CALL", {
+                "command": command,
+                **parameters
+            })
+            return response
+        except Exception as e:
+            return {"error": f"Failed to make game API call: {str(e)}"} 

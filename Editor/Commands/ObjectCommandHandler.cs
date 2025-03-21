@@ -463,6 +463,42 @@ namespace UnityMCP.Editor.Commands
             }
         }
 
+        /// <summary>
+        /// Executes a game API call
+        /// </summary>
+        public static object GameApiCall(JObject @params)
+        {
+            string command = (string)@params["command"] ?? throw new Exception("Parameter 'command' is required.");
+            Debug.Log($"Executing game API call: {command}");
+            
+            try 
+            {
+                // Try to get the method from the registry
+                if (!UnityMCP.Runtime.GameApiRegistry.TryGetMethod(command, out var method, out var target))
+                {
+                    throw new Exception($"Command '{command}' is not registered in GameApiRegistry.");
+                }
+                
+                // Execute the method through reflection
+                var result = method.Invoke(target, new object[] { @params });
+                return result ?? new { success = true, message = $"Command '{command}' executed successfully." };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error executing game API command '{command}': {ex.Message}");
+                if (ex.InnerException != null)
+                    Debug.LogError($"Inner exception: {ex.InnerException.Message}");
+                throw new Exception($"Error executing command '{command}': {ex.Message}");
+            }
+        }
+
+        private static IEnumerable<string> GetAvailableCommands()
+        {
+            // We could enhance this to query GameApiRegistry for all registered commands
+            // For now, just return an empty list
+            return new List<string>();
+        }
+
         // Add this helper method to find types across all loaded assemblies
         private static Type FindTypeInLoadedAssemblies(string typeName)
         {

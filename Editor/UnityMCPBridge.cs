@@ -287,6 +287,7 @@ namespace UnityMCP.Editor
                     "MODIFY_OBJECT" => ObjectCommandHandler.ModifyObject(command.@params),
                     "DELETE_OBJECT" => ObjectCommandHandler.DeleteObject(command.@params),
                     "EXECUTE_CONTEXT_MENU_ITEM" => ObjectCommandHandler.ExecuteContextMenuItem(command.@params),
+                    "GAME_API_CALL" => ObjectCommandHandler.GameApiCall(command.@params),
                     "GET_OBJECT_PROPERTIES" => ObjectCommandHandler.GetObjectProperties(command.@params),
                     "GET_COMPONENT_PROPERTIES" => ObjectCommandHandler.GetComponentProperties(command.@params),
                     "FIND_OBJECTS_BY_NAME" => ObjectCommandHandler.FindObjectsByName(command.@params),
