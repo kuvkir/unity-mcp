@@ -473,15 +473,9 @@ namespace UnityMCP.Editor.Commands
             
             try 
             {
-                // Try to get the method from the registry
-                if (!UnityMCP.Runtime.GameApiRegistry.TryGetMethod(command, out var method, out var target))
-                {
-                    throw new Exception($"Command '{command}' is not registered in GameApiRegistry.");
-                }
-                
-                // Execute the method through reflection
-                var result = method.Invoke(target, new object[] { @params });
-                return result ?? new { success = true, message = $"Command '{command}' executed successfully." };
+                // Use the enhanced ExecuteCommand method
+                var result = UnityMCP.Runtime.GameApiRegistry.ExecuteCommand(command, @params);
+                return result ?? new { success = false, message = $"Command '{command}' executed, but returned null." };
             }
             catch (Exception ex)
             {
